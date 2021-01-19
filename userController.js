@@ -6,6 +6,10 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const sharp = require("sharp");
 const slugify = require("slugify");
+const fs = require("fs");
+const util = require("util");
+
+const unlink = util.promisify(fs.unlink);
 
 const multerStorage = multer.memoryStorage();
 
@@ -40,7 +44,7 @@ exports.resizeAndSaveProfilePhoto = catchAsync(async (req, res, next) => {
     .resize(600, 600)
     .toFormat("jpeg")
     .jpeg({ quality: 90 })
-    .toFile(`Assets/UserProfile/${req.file.filename}`);
+    .toFile(`${__dirname}/Assets/UserProfile/${req.file.filename}`);
   user.profilePhoto = req.file.filename;
   await user.save();
   res.json({
@@ -137,6 +141,7 @@ exports.deleteUser = catchAsync(async (req, res, next) => {
   if (!user) {
     next(new AppError(`No User find for id ${req.params.id}`, 404));
   }
+  await unlink(`${__dirname}/Assets/UserProfile/${user.profilePhoto}`);
   res.status(204).json({
     status: "Success",
     message: "Deletion Successful",
