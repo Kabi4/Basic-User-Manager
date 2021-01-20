@@ -54,13 +54,7 @@ const userSchema = new mongoose.Schema(
       default: "default.png",
     },
     tokens: {
-      type: [
-        {
-          token: {
-            type: String,
-          },
-        },
-      ],
+      type: [String],
     },
   },
   {

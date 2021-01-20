@@ -9,6 +9,12 @@ const slugify = require("slugify");
 const fs = require("fs");
 const util = require("util");
 
+const getToken = (id) => {
+  return jwt.sign({ _id: id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_AUTH,
+  });
+};
+
 const unlink = util.promisify(fs.unlink);
 
 const multerStorage = multer.memoryStorage();
@@ -96,11 +102,26 @@ exports.signinUser = catchAsync(async (req, res, next) => {
     req.body.email,
     req.body.password
   );
+  const token = getToken(user._id);
+
+  user.tokens.push(token);
+
+  await user.save();
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() +
+        60 * 60 * 24 * 1000 * process.env.JWT_EXPIRES_AUTH.replace("d", "")
+    ),
+    httpOnly: true,
+    secure: false,
+  };
+  res.cookie("jwt", token, cookieOptions);
   res.json({
     status: "success",
     data: {
       user,
     },
+    jwt: token,
   });
 });
 

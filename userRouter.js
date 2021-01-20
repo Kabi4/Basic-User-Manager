@@ -1,10 +1,13 @@
 const router = require("express").Router();
 
 const userController = require("./userController");
+const authenticate = require("./authenticationController");
 
 router.route("/signup").post(userController.createUser);
 
 router.route("/login").get(userController.signinUser);
+
+router.use(authenticate.verifyToken);
 
 router.route("/updatePassword/:id").patch(userController.updatePassword);
 

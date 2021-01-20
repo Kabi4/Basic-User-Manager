@@ -2,6 +2,7 @@ require("dotenv").config({ path: __dirname + "/.env" });
 const express = require("express");
 const mongoose = require("mongoose");
 const userRouter = require("./userRouter");
+const cookieParser = require("cookie-parser");
 
 const CONNECTION_URL = process.env.DB_URL.replace(
   "<username>",
@@ -27,6 +28,7 @@ mongoose.connect(
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.use("/api/v1/users", userRouter);
 
